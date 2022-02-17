@@ -9,6 +9,12 @@ if(typeof window !== 'undefined'){
 
 export const TransactionProvider = ({children}) =>{
     const [ currentAccount, setCurrentAccount] = useState()
+    const [isLoading,setIsLoading] = useState(false)
+    const [formData, setFormData] = useState({
+        addressTo: '',
+        amount:'',
+    })
+    
     useEffect(() => {
         checkIfWalletIsConnected()
     },[])
@@ -38,11 +44,60 @@ export const TransactionProvider = ({children}) =>{
             throw new Error('No ethtereum object.')
         }
     }
+
+    const sendTransaction = async(
+        metamask = eth,
+        connectedAccount = currentAccount
+        ) => {
+            try{
+                if(!metamask) return alert('please install metamask')
+                const { addressTo, amount } = formData;
+                const transactionContract  = getEthtereumContract()
+                const parseAmount = ethers.utils.parseEther(amount)
+
+                await metamask.request({
+                    method: 'eth_sendTransaction',
+                    params:[
+                        {
+                            from: connectedAccount,
+                            to: addressTo,
+                            gas: '0x7ef40',
+                            value:parseAmount._hex,
+                        }
+                    ],
+                     
+                })
+
+                const transactionHash = await transactionContract.publishTransaction(
+                    addressTo,
+                    parseAmount,
+                    `Transferring ETH ${parseAmount} to ${addressTo}`,
+                    'TRANSFER'
+                )
+
+                setIsLoading(true)
+                await transactionHash.wait();
+                //DB
+                // await saveTransaction{
+                //     transactionHash.hash,
+                //     amount,
+                //     connectedAccount,
+                //     addressTo
+                // }
+                setIsLoading(false)
+            } catch(error){
+                console.log(error);
+            }
+        }
+    
+
     return (
         <TransactionContext.Provider
             value ={{
                 currentAccount,
                 connectWallet,
+                sendTransaction,
+                
             }}
         >{children}
         </TransactionContext.Provider>
