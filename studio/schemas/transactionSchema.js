@@ -24,8 +24,8 @@ export const transactionSchema = {
             type: 'number'
         },
         {
-            name: 'timestramp',
-            title: 'Timestramp',
+            name: 'timestamp',
+            title: 'Timestamp',
             type: 'datetime'
         },
     ]

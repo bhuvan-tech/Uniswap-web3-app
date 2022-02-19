@@ -1,8 +1,15 @@
 import Image from 'next/image'
+import { useContext } from 'react'
 import { RiSettings3Fill} from 'react-icons/ri'
 import { AiOutlineDown} from 'react-icons/ai'
 import ethLogo from '../assests/eth.png'
-import uniswapLogo from '../assests/uniswap.png'
+import { TransactionContext } from '../context/TransactionContext'
+import Modal from 'react-modal'
+import { useRouter } from 'next/router'
+import TransactionLoader from './TransactionLoader'
+
+
+Modal.setAppElement('#__next')
 
 const style = {
     wrapper: `w-screen flex items-center justify-center mt-14`,
@@ -35,6 +42,20 @@ const style = {
   }
 
 const Main = () => {
+
+
+    const {formData, handleChange, sendTransaction } = useContext(TransactionContext);
+
+    const router = useRouter();
+
+    const handleSubmit = async (e) =>{
+        const {addressTo, amount } =formData
+        e.preventDefault()
+
+        if(!addressTo || !amount) return
+
+        sendTransaction()
+    }
     return(
 
         <div className={style.wrapper}>
@@ -47,10 +68,8 @@ const Main = () => {
                 </div>
 
                 <div className={style.transferPropContainer}>
-                    <input type="text" className={style.transferPropInput} placeholder='0.0' pattern='^[0-9]*[.,]?[0-9]*$' onChange={e => hangleChange(e, 'amount')}/>
-                </div>
-
-                <div className={style.currencySelector}>
+                    <input type="text" className={style.transferPropInput} placeholder='0.0' pattern='^[0-9]*[.,]?[0-9]*$' onChange={e => handleChange(e, 'amount')}/>
+                    <div className={style.currencySelector}>
                     <div className={style.currencySelectorContent}>
                         <div className={style.currencySelectorIcon}>
                             <Image src={ethLogo} alt='eth logo' height={20} width={20} />
@@ -59,6 +78,9 @@ const Main = () => {
                         <AiOutlineDown className={style.currencySelectorArrow} />
                     </div>
                 </div>
+                </div>
+
+                
         
                 <div className={style.transferPropContainer}>
                     <input
@@ -75,6 +97,11 @@ const Main = () => {
                 </div>
       
             </div>
+
+            
+            <Modal isOpen={!!router.query.loading} style={customStyles}>
+                <TransactionLoader />
+            </Modal>
         </div>
     )
 }

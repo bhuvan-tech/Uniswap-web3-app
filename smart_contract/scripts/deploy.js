@@ -16,3 +16,5 @@ const main = async() =>{
         process.exit(1)
     }
 })()
+
+// contract deployed at 0x999E49e7E6B49ee228B4E2c267c6927A5F68a322
